@@ -22,13 +22,12 @@
         <label for="scroll-count">Total Peserta : <span id="jumlah-data">0</span> </label>,
         <label for="scroll-count">Jumlah Acak:</label>
         <select id="scroll-count">
+          <option value="5">5x</option>
           <option value="10">10x</option>
-          <option value="20">20x</option>
-          <option value="50" selected>50x</option>
+          <option value="20" selected>20x</option>
+          <option value="50">50x</option>
           <option value="100">100x</option>
           <option value="200">200x</option>
-          <option value="500">500x</option>
-          <option value="1000">1000x</option>
         </select>
       </div>
       <div style="padding-top: 10px">

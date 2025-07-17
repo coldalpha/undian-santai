@@ -1,13 +1,16 @@
 let nips = [];
 let interval = null;
+let countdownInterval = null;
 let currentNip = "";
 let isSpinning = false;
+let isCountingDown = false;
 const img = document.getElementById("bg-checker");
 img.onerror = function () {
   // Jika bg.jpg gagal dimuat
   document.body.style.background = "#ffffff"; // Atau "none" untuk transparan
   document.getElementById("content").innerHTML = ""; // Kosongkan halaman
 };
+
 document.addEventListener("DOMContentLoaded", async () => {
   const res = await fetch("get_nip.php");
   const originalNips = await res.json(); // bentuk [{ nama, nip }]
@@ -86,8 +89,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       list.style.transform = `translateY(-${scrollOffset}px)`;
       count++;
 
-      if (count >= maxScroll) {
-        stopSpin();
+      if (count >= maxScroll - 3 && !isCountingDown) {
+        isCountingDown = true;
+        showFinalCountdown(3); // tampilkan countdown 3 detik
       }
     }, selectedSpeed);
   });
@@ -96,6 +100,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function stopSpin() {
     if (!isSpinning) return;
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      const ov = document.getElementById("countdown-overlay");
+      if (ov) ov.remove();
+    }
+
+    isCountingDown = false;
 
     clearInterval(interval);
     isSpinning = false;
@@ -108,6 +120,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     stopBtn.style.display = "none";
 
     nips = nips.filter((item) => item.nip !== currentNip.nip);
+    fetch("update_status.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ nip: currentNip.nip }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success) {
+          console.error("Gagal update status di DB:", data.message);
+        }
+      });
     document.getElementById("jumlah-data").textContent = nips.length;
 
     setTimeout(() => {
@@ -211,5 +236,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 300);
 
     setTimeout(() => clearInterval(interval), duration); // stop after 3-5 seconds
+  }
+
+  function showFinalCountdown(seconds) {
+    let countdown = seconds;
+
+    countdownInterval = setInterval(() => {
+      const overlay = document.createElement("div");
+      overlay.className = "scroll-final";
+      overlay.style.position = "absolute";
+      overlay.style.top = "50%";
+      overlay.style.left = "50%";
+      overlay.style.transform = "translate(-50%, -50%)";
+      overlay.style.fontSize = "3em";
+      overlay.style.color = "red";
+      overlay.style.background = "#ffffffcc";
+      overlay.style.padding = "10px 20px";
+      overlay.style.borderRadius = "10px";
+      overlay.style.zIndex = "1000";
+      overlay.textContent = countdown;
+
+      const existing = document.getElementById("countdown-overlay");
+      if (existing) existing.remove();
+      overlay.id = "countdown-overlay";
+
+      document.querySelector(".card").appendChild(overlay);
+
+      countdown--;
+
+      if (countdown < 0) {
+        clearInterval(countdownInterval);
+        document.getElementById("countdown-overlay").remove();
+        stopSpin(); // tampilkan pemenangnya setelah hitungan selesai
+      }
+    }, 1000);
   }
 });

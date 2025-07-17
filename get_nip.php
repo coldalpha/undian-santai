@@ -1,22 +1,8 @@
 <?php
-// get_nip.php
-$host = "localhost";
-$user = "root";
-$password = "";
-$dbname = "agustusan";
+require_once("db.php");
 
-$conn = new mysqli($host, $user, $password, $dbname);
+$stmt = $pdo->prepare("SELECT nama, nip FROM peserta WHERE status = 0");
+$stmt->execute();
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$result = $conn->query("SELECT nama, nip FROM peserta");
-
-$data = [];
-while ($row = $result->fetch_assoc()) {
-    $data[] = [
-        "nama" => $row["nama"],
-        "nip" => $row["nip"]
-    ];
-}
-
-header('Content-Type: application/json');
-echo json_encode($data);
-$conn->close();
+echo json_encode($rows);

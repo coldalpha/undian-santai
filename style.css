@@ -32,7 +32,6 @@ body {
 
 .card {
     background: rgba(0, 0, 0, 0.6);
-    /* 🔥 Gelap transparan */
     padding: 40px;
     border-radius: 16px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
@@ -41,7 +40,7 @@ body {
     width: 100%;
     backdrop-filter: blur(6px);
     color: white;
-    /* Tambahan penting agar teks tetap terbaca */
+    position: relative;
 }
 
 
